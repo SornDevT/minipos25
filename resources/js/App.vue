@@ -381,7 +381,7 @@
                     <div class="dropdown-divider"></div>
                   </li>
                   <li>
-                    <a class="dropdown-item" href="auth-login-cover.html" target="_blank">
+                    <a class="dropdown-item" href="javascript:void(0);" @click="logout()">
                       <i class="ti ti-logout me-2 ti-sm"></i>
                       <span class="align-middle">Log Out</span>
                     </a>
@@ -445,7 +445,8 @@
 </template>
 <script>
 import 'boxicons/css/boxicons.min.css';
-import { useAuthStore } from './Store/auth';
+import { useAuthStore } from '@/Store/auth';
+import axios from 'axios';
 
 export default {   
   setup() {
@@ -513,6 +514,23 @@ export default {
     };
   },
   methods: {
+
+    logout(){
+
+      axios.get('/api/logout',{
+        headers:{
+          Authorization: `Bearer ${this.authStore.token}`
+        }
+      }).then(response => {
+        if(response.data.success){
+          // clear auth store
+          this.authStore.Logout();
+          this.$router.push('/login');
+        }
+      }).catch(error => {
+        console.error(error);
+      });
+    },
     // ຟັງຊັນສໍາລັບການເປີດ/ປິດ sub-menu
     toggleSubMenu(menuItem) {
       menuItem.isOpen = !menuItem.isOpen;
