@@ -12,10 +12,11 @@
           <div class="card-body">
             <div class="row">
                     <div class="col-md-6 d-flex mb-2">
-                        <div class="me-2">
-                            <i class='bx bx-sort-up fs-4' ></i>
+                        <div class="me-2 cursor-pointer">
+                            <i class='bx bx-sort-up fs-4' v-if="Sort === 'asc'" @click="Sort = 'desc'; getProducts()" ></i>
+                            <i class='bx bx-sort-down fs-4' v-else @click="Sort = 'asc'; getProducts()" ></i>
                         </div>
-                        <select class="form-select w-auto me-2">
+                        <select class="form-select w-auto me-2" v-model="PerPage" @change="getProducts()">
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="20">20</option>
@@ -29,8 +30,8 @@
                     </div>
                     <div class="col-md-6 mb-2 d-flex justify-content-end">
                         <div class="input-group  w-auto me-2">
-                            <input type="text" class="form-control" placeholder="ຄົ້ນຫາ...">
-                            <button class="btn btn-primary px-3 " type="button" id="button-addon2"><i class='bx bx-search' ></i></button>
+                            <input type="text" class="form-control" v-model="Search" placeholder="ຄົ້ນຫາ..." @keyup.enter="getProducts()">
+                            <button class="btn btn-primary px-3 " type="button" @click="getProducts()" id="button-addon2"><i class='bx bx-search' ></i></button>
                         </div>
                         <button type="button" class="btn btn-primary"  @click="AddProduct()">ເພີ່ມຂໍ້ມູນ</button>
                     </div>
@@ -39,6 +40,7 @@
               <table class="table table-bordered">
                 <thead>
                   <tr>
+                    <th>#</th>
                     <th>ຊື່ສິນຄ້າ</th>
                     <th>ໝວດໝູ່</th>
                     <th>ຈຳນວນ</th>
@@ -48,12 +50,13 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in ProductList" :key="index">
+                  <tr v-for="(item, index) in ProductList.data" :key="index">
+                    <td>{{ item.id }}</td>
                     <td>{{ item.ProductName }}</td>
                     <td>{{ item.CategoryName }}</td>
-                    <td>{{ item.Qty }}</td>
-                    <td>{{ item.PriceBuy }}</td>
-                    <td>{{ item.PriceSell }}</td>
+                    <td class="text-center">{{ FormatPrice(item.Qty) }}</td>
+                    <td class="text-end">{{ FormatPrice(item.PriceBuy) }} ກີບ</td>
+                    <td class="text-end">{{ FormatPrice(item.PriceSell) }} ກີບ</td>
                     <td class="text-center">
                       <div class="dropdown">
                         <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -72,6 +75,10 @@
                   </tr>
                 </tbody>
               </table>
+
+              <Pagination :pagination="ProductList" :offset="4" @paginate="getProducts($event)" />
+
+               <button @click="showAlert">Hello world</button>
             </div>
           </div>
         </div>
@@ -110,18 +117,18 @@
                             </div>
                             <div class="mb-3 col-md-6">
                             <label class="form-label">ຈຳນວນ: <span class="text-danger">*</span></label>
-                            <input type="number" v-model="FormProduct.Qty" class="form-control">
+                            <cleave :options="options" v-model="FormProduct.Qty" class="form-control" />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="mb-3 col-md-6">
                             <label class="form-label">ລາຄາຊື້: <span class="text-danger">*</span></label>
-                            <input type="number" v-model="FormProduct.PriceBuy" class="form-control">
+                            <cleave :options="options" v-model="FormProduct.PriceBuy" class="form-control" />
                             </div>
                             <div class="mb-3 col-md-6  ">
                             <label class="form-label">ລາຄາຂາຍ: <span class="text-danger">*</span></label>
-                            <input type="number" v-model="FormProduct.PriceSell" class="form-control">
+                            <cleave :options="options" v-model="FormProduct.PriceSell" class="form-control" />
                             </div>
                         </div>
                 </div>
@@ -142,11 +149,14 @@
 
 <script>
 import axios from "axios";
+import Cleave from 'vue-cleave-component';
 
 export default {
   data() {
     return {
-      ProductList: [],
+      ProductList: {
+        data:{}
+      },
       CategoryList: [],
       FormProduct:{
         ProductName: "",
@@ -156,9 +166,22 @@ export default {
         PriceBuy: "",
         PriceSell: "",
       },
+      PerPage:10,
       SelectCategory: "all",
+      Sort:"asc",
+      Search:"",
       FormType: true,
       EditID: "",
+      options: {
+                  numeral: true,
+                  numeralPositiveOnly: true,
+                  noImmediatePrefix: true,
+                  rawValueTrimPrefix: true,
+                  numeralIntegerScale: 10,
+                  numeralDecimalScale: 2,
+                  numeralDecimalMark: '.',
+                  delimiter: ','
+                }
     };
   },
   computed: {
@@ -166,9 +189,37 @@ export default {
       return this.FormProduct.ProductName && this.FormProduct.CategoryID && this.FormProduct.Qty && this.FormProduct.PriceBuy && this.FormProduct.PriceSell;
     }
   },
+  components: {
+    Cleave
+  },
   methods: {
-    getProducts() {
-      axios.get("/api/product/index?category_id=" + this.SelectCategory).then((res) => {
+    showAlert() {
+      // Use sweetalert2
+      this.$swal({
+        title: "ທ່ານແນ່ໃຈບໍ່?",
+        text: "ທີ່ຈະທຳການລຶບຂໍ້ມູນນີ້!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ຕົກລົງ!",
+        cancelButtonText: "ຍົກເລີກ"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.$swal({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success"
+          });
+        }
+      });
+    },
+    FormatPrice(value) {
+             let val = (value / 1).toFixed(0).replace(",", ".");
+            return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        },
+    getProducts(page=1) {
+      axios.get("/api/product/index?page=" + page + "&category_id=" + this.SelectCategory + "&per_page=" + this.PerPage + "&sort=" + this.Sort + "&search=" + this.Search).then((res) => {
         this.ProductList = res.data;
       });
     },
@@ -183,12 +234,15 @@ export default {
     },
     AddProduct() {
       this.FormType = true;
-      this.ProductName = "";
-      this.CategoryID = "";
-      this.ImagePath = "";
-      this.Qty = "";
-      this.PriceBuy = "";
-      this.PriceSell = "";
+      this.FormProduct = {
+          ProductName: "",
+          CategoryID: "",
+          ImagePath: "",
+          Qty: "",
+          PriceBuy: "",
+          PriceSell: "",
+      }
+
       $("#modal_product").modal("show");
     },
     EditProduct(id) {
@@ -203,32 +257,116 @@ export default {
       if (this.FormType) {
         axios.post("/api/product/add", this.FormProduct)
           .then((res) => {
+
+            $("#modal_product").modal("hide");
             if (res.data.success) {
-              $("#modal_product").modal("hide");
+              
               this.getProducts();
+
+              this.$swal({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: res.data.message,
+                showConfirmButton: false,
+                timer: 2500
+              });
+            } else {
+              this.$swal({
+                position: "center",
+                icon: "error",
+                title: "ເກີດຂໍ້ຜິດຜາດ!",
+                text: res.data.message,
+                showConfirmButton: false,
+                timer: 5500
+              });
             }
           });
       } else {
         axios.post("/api/product/update/" + this.EditID, this.FormProduct)
           .then((res) => {
+
+            $("#modal_product").modal("hide");
+
             if (res.data.success) {
-              $("#modal_product").modal("hide");
               this.getProducts();
+
+               this.$swal({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: res.data.message,
+                showConfirmButton: false,
+                timer: 2500
+              });
+
+            } else {
+              this.$swal({
+                position: "center",
+                icon: "error",
+                title: "ເກີດຂໍ້ຜິດຜາດ!",
+                text: res.data.message,
+                showConfirmButton: false,
+                timer: 5500
+              });
             }
           });
       }
     },
     DelProduct(id) {
-      axios.delete("/api/product/delete/" + id).then((res) => {
-        if (res.data.success) {
-          this.getProducts();
+
+      this.$swal({
+        title: "ທ່ານແນ່ໃຈບໍ່?",
+        text: "ທີ່ຈະທຳການລຶບຂໍ້ມູນນີ້!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ຕົກລົງ!",
+        cancelButtonText: "ຍົກເລີກ"
+      }).then((result) => {
+        if (result.isConfirmed) {
+
+          axios.delete("/api/product/delete/" + id).then((res) => {
+            if (res.data.success) {
+              this.getProducts();
+              this.$swal({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: res.data.message,
+                showConfirmButton: false,
+                timer: 2500
+              });
+            } else {
+              this.$swal({
+                position: "center",
+                icon: "error",
+                title: "ເກີດຂໍ້ຜິດຜາດ!",
+                text: res.data.message,
+                showConfirmButton: false,
+                timer: 5500
+              });
+            }
+          });
+
+
         }
       });
+
+
     },
   },
   created() {
     this.getProducts();
     this.getCategories();
   },
+  watch: {
+    Search(val){
+      if(val.length == 0) {
+        this.getProducts();
+      }
+    }
+  }
 };
 </script>

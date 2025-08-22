@@ -570,6 +570,10 @@ export default {
   },
 };
 </script>
-<style lang="">
+<style  scoped >
 /* Your existing styles */
+
+body:not(.modal-open) .layout-content-navbar .layout-navbar {
+  z-index: 1000;
+ }
 </style>

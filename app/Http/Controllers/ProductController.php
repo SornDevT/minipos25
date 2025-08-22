@@ -13,15 +13,31 @@ class ProductController extends Controller
     {
 
         $category_id = \Request::get('category_id');
+        $per_page = \Request::get('per_page');
+        $sort = \Request::get('sort');
+        $search = \Request::get('search');
 
         $products = Product::join('categories', 'products.CategoryID', '=', 'categories.id')
             ->select('products.*', 'categories.CategoryName');
 
+            // filter category
         if ($category_id && $category_id != 'all') {
             $products = $products->where('products.CategoryID', $category_id);
         }
 
-        $products = $products->get();
+        // filter search
+        if ($search) {
+            $products = $products->where(function ($query) use ($search) {
+                $query->where('products.ProductName', 'like', "%$search%")
+                      ->orWhere('categories.CategoryName', 'like', "%$search%")
+                      ->orWhere('products.PriceBuy', 'like', "%$search%")
+                      ->orWhere('products.PriceSell', 'like', "%$search%");
+            });
+        }
+
+        $products = $products
+            ->orderBy('products.id', $sort)
+            ->paginate($per_page);
 
         return response()->json($products);
     }

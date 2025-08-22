@@ -111,18 +111,34 @@ export default {
                 // add new data
                 axios.post('/api/category/add', {
                     CategoryName: this.CategoryName,
-                }).then(response=>{
+                }).then(res=>{
 
-                    console.log(response.data);
-                    if(response.data.success){
+                    console.log(res.data);
+                    if(res.data.success){
 
                         $('#modal_category').modal('hide');
                         this.CategoryName = '';
                         // ອັບເດດລສຍການ ຂໍ້ມູນ.
                         this.getCategory();
 
-                    } else {
+                        this.$swal({
+                          toast: true,
+                          position: "top-end",
+                          icon: "success",
+                          title: res.data.message,
+                          showConfirmButton: false,
+                          timer: 2500
+                        });
 
+                    } else {
+                        this.$swal({
+                          position: "center",
+                          icon: "error",
+                          title: "ເກີດຂໍ້ຜິດຜາດ!",
+                          text: res.data.message,
+                          showConfirmButton: false,
+                          timer: 5500
+                        });
                     }
 
                 }).catch(error=>{
@@ -133,18 +149,34 @@ export default {
                 // update data
                 axios.post('/api/category/update/' + this.EditID, {
                     CategoryName: this.CategoryName,
-                }).then(response=>{
+                }).then(res=>{
+                   $('#modal_category').modal('hide');
+                    console.log(res.data);
+                    if(res.data.success){
 
-                    console.log(response.data);
-                    if(response.data.success){
-
-                        $('#modal_category').modal('hide');
+                       
                         this.CategoryName = '';
                         // ອັບເດດລສຍການ ຂໍ້ມູນ.
                         this.getCategory();
 
-                    } else {
+                        this.$swal({
+                          toast: true,
+                          position: "top-end",
+                          icon: "success",
+                          title: res.data.message,
+                          showConfirmButton: false,
+                          timer: 2500
+                        });
 
+                    } else {
+                      this.$swal({
+                          position: "center",
+                          icon: "error",
+                          title: "ເກີດຂໍ້ຜິດຜາດ!",
+                          text: res.data.message,
+                          showConfirmButton: false,
+                          timer: 5500
+                        });
                     }
 
                 }).catch(error=>{
@@ -155,21 +187,57 @@ export default {
         },
         DelCategory(id){
 
-            axios.delete('/api/category/delete/' + id).then(response=>{
 
-                console.log(response.data);
-                if(response.data.success){
+
+            this.$swal({
+        title: "ທ່ານແນ່ໃຈບໍ່?",
+        text: "ທີ່ຈະທຳການລຶບຂໍ້ມູນນີ້!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "ຕົກລົງ!",
+        cancelButtonText: "ຍົກເລີກ"
+      }).then((result) => {
+        if (result.isConfirmed) {
+
+           axios.delete('/api/category/delete/' + id).then(res=>{
+
+                console.log(res.data);
+                if(res.data.success){
 
                     // ອັບເດດລສຍການ ຂໍ້ມູນ.
                     this.getCategory();
-
+                   this.$swal({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: res.data.message,
+                showConfirmButton: false,
+                timer: 2500
+              });
                 } else {
-
+                  this.$swal({
+                position: "center",
+                icon: "error",
+                title: "ເກີດຂໍ້ຜິດຜາດ!",
+                text: res.data.message,
+                showConfirmButton: false,
+                timer: 5500
+              });
                 }
 
             }).catch(error=>{
                 console.log(error);
             })
+
+
+        }
+      });
+
+          
+
+           
 
         },
         getCategory(){
