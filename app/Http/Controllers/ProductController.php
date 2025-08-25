@@ -46,10 +46,24 @@ class ProductController extends Controller
     public function add(Request $request)
     {
         try {
+
+
+            // set path
+            $ImagePath = 'assets/img/';
+
+            // ກວດເບີ່ງວ່າມີໄຟລ໌ ສົ່ງມາຫຼືບໍ່
+            if ($request->hasFile('ImagePath')) {
+                $file = $request->file('ImagePath');
+                $new_image = 'img_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path($ImagePath), $new_image);
+            } else {
+                $new_image = null;
+            }
+
             Product::create([
                 'ProductName' => $request->ProductName,
                 'CategoryID'  => $request->CategoryID,
-                'ImagePath'   => $request->ImagePath,
+                'ImagePath'   => $new_image,
                 'Qty'         => $request->Qty,
                 'PriceBuy'    => $request->PriceBuy,
                 'PriceSell'   => $request->PriceSell,
@@ -80,10 +94,39 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
+         
+
             $product = Product::find($id);
+
+            $ImagePath = 'assets/img/';
+
+            if ($request->hasFile('ImagePath')) {
+
+                // remove old image
+                if ($product->ImagePath && file_exists(public_path($ImagePath . $product->ImagePath))) {
+                    unlink(public_path($ImagePath . $product->ImagePath));
+                }
+
+                $file = $request->file('ImagePath');
+                $new_image = 'img_' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path($ImagePath), $new_image);
+
+                $product->ImagePath = $new_image;   
+            } else{
+
+                if($request->ImagePath == null) {
+                    // remove old image
+                    if ($product->ImagePath && file_exists(public_path($ImagePath . $product->ImagePath))) {
+                        unlink(public_path($ImagePath . $product->ImagePath));
+                    }
+                    $product->ImagePath = null;  
+                }
+
+            }
+
+
             $product->ProductName = $request->ProductName;
             $product->CategoryID  = $request->CategoryID;
-            $product->ImagePath   = $request->ImagePath;
             $product->Qty         = $request->Qty;
             $product->PriceBuy    = $request->PriceBuy;
             $product->PriceSell   = $request->PriceSell;
@@ -107,7 +150,13 @@ class ProductController extends Controller
     public function delete($id)
     {
         try {
+            $ImagePath = 'assets/img/';
             $product = Product::find($id);
+
+            if ($product->ImagePath && file_exists(public_path($ImagePath . $product->ImagePath))) {
+                unlink(public_path($ImagePath . $product->ImagePath));
+            }
+
             $product->delete();
 
             $success = true;

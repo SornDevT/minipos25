@@ -12,7 +12,7 @@ Route::get('/logout', [UserController::class, 'logout']);
 
 
 // route category
-Route::group([], function(){
+Route::group(['middleware' => 'auth:api'], function(){
 
     Route::get('/category/index', [CategoryController::class, 'index']);
     Route::post('/category/add', [CategoryController::class, 'add']);
@@ -23,7 +23,7 @@ Route::group([], function(){
 });
 
 // route product
-Route::group([], function(){
+Route::group(['middleware' => 'auth:api'], function(){
 
     Route::get('/product/index', [ProductController::class, 'index']);
     Route::post('/product/add', [ProductController::class, 'add']);

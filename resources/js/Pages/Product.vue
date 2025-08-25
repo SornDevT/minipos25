@@ -41,6 +41,7 @@
                 <thead>
                   <tr>
                     <th>#</th>
+                    <th>ຮູບພາບ</th>
                     <th>ຊື່ສິນຄ້າ</th>
                     <th>ໝວດໝູ່</th>
                     <th>ຈຳນວນ</th>
@@ -52,6 +53,10 @@
                 <tbody>
                   <tr v-for="(item, index) in ProductList.data" :key="index">
                     <td>{{ item.id }}</td>
+                    <td>
+                      <img :src="url + '/assets/img/' + item.ImagePath" class="list-img shadow" v-if="item.ImagePath" alt="Product Image" width="80">
+                      <img :src="url + '/assets/img/no_img.jpg'" v-else class="list-img shadow" alt="Product Image" width="80">
+                    </td>
                     <td>{{ item.ProductName }}</td>
                     <td>{{ item.CategoryName }}</td>
                     <td class="text-center">{{ FormatPrice(item.Qty) }}</td>
@@ -102,7 +107,19 @@
             <!-- ຟອມຂອງສິນຄ້າ -->
 
             <div class="row">
-                <div class="col-md-4">ຮູບພາບ</div>
+                <div class="col-md-4 text-center"  >
+                  <div style="position: relative;">
+                  <button type="button" class="btn rounded-pill btn-icon btn-danger btn-img-rm" v-if="FormProduct.ImagePath" @click="FormProduct.ImagePath=''; ImagePreview= url + '/assets/img/upload_img.jpg'">
+                  <i class='bx bx-x'></i>
+                </button>
+                  <label class="form-label">ຮູບພາບ</label>
+                  <div class=" d-flex justify-content-center cursor-pointer" >
+                     <img :src="ImagePreview" @click="$refs.img_upload.click()" alt="Product Image" width="80%" class="img-fluid mb-2" >
+                  </div>
+
+                  <input type="file" ref="img_upload" style="display: none;" @change="onSelect($event)" class="form-control">
+                </div>
+                </div>
                 <div class="col-md-8">
                          <div class="mb-3">
                         <label class="form-label">ຊື່ສິນຄ້າ: <span class="text-danger">*</span></label>
@@ -150,10 +167,17 @@
 <script>
 import axios from "axios";
 import Cleave from 'vue-cleave-component';
+import { useAuthStore } from '@/Store/auth';
 
 export default {
+  setup() {
+    const authStore = useAuthStore();
+    return { authStore };
+  },
   data() {
     return {
+      url: window.location.origin,
+     ImagePreview: window.location.origin + '/assets/img/upload_img.jpg',
       ProductList: {
         data:{}
       },
@@ -214,17 +238,42 @@ export default {
         }
       });
     },
+    onSelect(e){
+
+      console.log(e);
+      if(e.target.files.length > 0) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          this.ImagePreview = event.target.result;
+        };
+        reader.readAsDataURL(file);
+        this.FormProduct.ImagePath = file;
+      } else {
+        this.FormProduct.ImagePath = "";
+        this.ImagePreview = window.location.origin + '/assets/img/upload_img.jpg';
+      }
+
+    },
     FormatPrice(value) {
              let val = (value / 1).toFixed(0).replace(",", ".");
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         },
     getProducts(page=1) {
-      axios.get("/api/product/index?page=" + page + "&category_id=" + this.SelectCategory + "&per_page=" + this.PerPage + "&sort=" + this.Sort + "&search=" + this.Search).then((res) => {
+      axios.get("/api/product/index?page=" + page + "&category_id=" + this.SelectCategory + "&per_page=" + this.PerPage + "&sort=" + this.Sort + "&search=" + this.Search,{
+        headers: {
+          Authorization: "Bearer " + this.authStore.getToken
+        }
+      }).then((res) => {
         this.ProductList = res.data;
       });
     },
     getCategories() {
-      axios.get("/api/category/index").then((res) => {
+      axios.get("/api/category/index", {
+        headers: {
+          Authorization: "Bearer " + this.authStore.getToken
+        }
+      }).then((res) => {
         this.CategoryList = res.data;
       });
     },
@@ -242,22 +291,31 @@ export default {
           PriceBuy: "",
           PriceSell: "",
       }
+      this.ImagePreview = window.location.origin + '/assets/img/upload_img.jpg';
 
       $("#modal_product").modal("show");
     },
     EditProduct(id) {
       this.FormType = false;
       this.EditID = id;
-      axios.get("/api/product/edit/" + id).then((res) => {
+      axios.get("/api/product/edit/" + id, {
+        headers: {
+          Authorization: "Bearer " + this.authStore.getToken
+        }
+      }).then((res) => {
         this.FormProduct = res.data;
+        if(this.FormProduct.ImagePath) {
+          this.ImagePreview = this.url + '/assets/img/' + this.FormProduct.ImagePath;
+        } else {
+          this.ImagePreview = this.url + '/assets/img/no_img.jpg';
+        }
         $("#modal_product").modal("show");
       });
     },
     SaveProduct() {
       if (this.FormType) {
-        axios.post("/api/product/add", this.FormProduct)
+        axios.post("/api/product/add", this.FormProduct,{ headers: { "Content-Type": "multipart/form-data", Authorization: "Bearer " + this.authStore.getToken } })
           .then((res) => {
-
             $("#modal_product").modal("hide");
             if (res.data.success) {
               
@@ -283,7 +341,7 @@ export default {
             }
           });
       } else {
-        axios.post("/api/product/update/" + this.EditID, this.FormProduct)
+        axios.post("/api/product/update/" + this.EditID, this.FormProduct, { headers: { "Content-Type": "multipart/form-data", Authorization: "Bearer " + this.authStore.getToken } })
           .then((res) => {
 
             $("#modal_product").modal("hide");
@@ -327,7 +385,11 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
 
-          axios.delete("/api/product/delete/" + id).then((res) => {
+          axios.delete("/api/product/delete/" + id, {
+            headers: {
+              Authorization: "Bearer " + this.authStore.getToken
+            }
+          }).then((res) => {
             if (res.data.success) {
               this.getProducts();
               this.$swal({
@@ -370,3 +432,16 @@ export default {
   }
 };
 </script>
+<style scoped>
+
+  .list-img {
+      border: 1px solid #a3a3a3;
+      border-radius: 5px;
+      padding: 2px;
+  }
+  .btn-img-rm {
+      position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+</style>

@@ -74,9 +74,15 @@
 </template>
 <script>
 import axios from 'axios';
+import { useAuthStore } from '@/Store/auth';
 
 export default {
+  setup() {
+    const authStore = useAuthStore();
+    return { authStore };
+  },
     data() {
+
         return {
             CategoryList: [],
             CategoryName:'',
@@ -95,7 +101,11 @@ export default {
             this.EditID = id;
             this.FromType = false;
 
-            axios.get('/api/category/edit/' + id).then(response=>{
+            axios.get('/api/category/edit/' + id,{
+              headers: {
+                Authorization: "Bearer " + this.authStore.getToken
+              }
+            }).then(response=>{
 
                     this.CategoryName = response.data.CategoryName;
                     $('#modal_category').modal('show');
@@ -109,8 +119,7 @@ export default {
             if(this.FromType){
 
                 // add new data
-                axios.post('/api/category/add', {
-                    CategoryName: this.CategoryName,
+                axios.post('/api/category/add', { CategoryName: this.CategoryName, }, { headers: { Authorization: "Bearer " + this.authStore.getToken}
                 }).then(res=>{
 
                     console.log(res.data);
@@ -149,6 +158,10 @@ export default {
                 // update data
                 axios.post('/api/category/update/' + this.EditID, {
                     CategoryName: this.CategoryName,
+                }, {
+                    headers: {
+                        Authorization: "Bearer " + this.authStore.getToken
+                    }
                 }).then(res=>{
                    $('#modal_category').modal('hide');
                     console.log(res.data);
@@ -201,7 +214,11 @@ export default {
       }).then((result) => {
         if (result.isConfirmed) {
 
-           axios.delete('/api/category/delete/' + id).then(res=>{
+           axios.delete('/api/category/delete/' + id, {
+               headers: {
+                   Authorization: "Bearer " + this.authStore.getToken
+               }
+           }).then(res=>{
 
                 console.log(res.data);
                 if(res.data.success){
@@ -241,7 +258,11 @@ export default {
 
         },
         getCategory(){
-            axios.get('/api/category/index').then(response=>{
+            axios.get('/api/category/index', {
+                headers: {
+                    Authorization: "Bearer " + this.authStore.getToken
+                }
+            }).then(response=>{
                 console.log(response.data);
                 this.CategoryList = response.data;
             }).catch(error=>{
