@@ -34,10 +34,17 @@ class ProductController extends Controller
                       ->orWhere('products.PriceSell', 'like', "%$search%");
             });
         }
-
-        $products = $products
+        // check per_page
+        if($per_page == 'all'){
+            $products = $products
+            ->orderBy('products.id', $sort)
+            ->get();
+        } else {
+            $products = $products
             ->orderBy('products.id', $sort)
             ->paginate($per_page);
+        }
+        
 
         return response()->json($products);
     }

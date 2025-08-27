@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\TransectionController;
 
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
@@ -30,5 +31,16 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/product/edit/{id}', [ProductController::class, 'edit']);
     Route::post('/product/update/{id}', [ProductController::class, 'update']);
     Route::delete('/product/delete/{id}', [ProductController::class, 'delete']);
+
+});
+
+// route transection
+Route::group(['middleware' => 'auth:api'], function(){
+
+    // Route::get('/transection/index', [TransectionController::class, 'index']);
+    Route::post('/transection/add', [TransectionController::class, 'add']);
+    // Route::get('/transection/edit/{id}', [TransectionController::class, 'edit']);
+    // Route::post('/transection/update/{id}', [TransectionController::class, 'update']);
+    // Route::delete('/transection/delete/{id}', [TransectionController::class, 'delete']);
 
 });
