@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Transection;
 
 class ProductController extends Controller
 {
@@ -67,7 +68,7 @@ class ProductController extends Controller
                 $new_image = null;
             }
 
-            Product::create([
+          $product = Product::create([
                 'ProductName' => $request->ProductName,
                 'CategoryID'  => $request->CategoryID,
                 'ImagePath'   => $new_image,
@@ -75,6 +76,17 @@ class ProductController extends Controller
                 'PriceBuy'    => $request->PriceBuy,
                 'PriceSell'   => $request->PriceSell,
             ]);
+
+            // add transection 
+             $tran_id = 'TR'.date('Ymd').rand(100,999);
+                    $transection = new Transection();
+                    $transection->TranID = $tran_id;
+                    $transection->TranType = 'expense';
+                    $transection->ProductID = $product->id;
+                    $transection->Qty = $request->Qty;
+                    $transection->Price = $request->PriceBuy*$request->Qty;
+                    $transection->Detail = 'ນຳເຂົ້າສິນຄ້າ: '. $request->ProductName;
+                    $transection->save();
 
             $success = true;
             $message = 'ບັນທຶກຂໍ້ມູນສຳເລັດ';

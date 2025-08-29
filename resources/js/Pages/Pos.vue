@@ -23,7 +23,7 @@
                             <span v-for="or in ListOrder" :key="or.id">
                                  <span v-if="item.id == or.id" class="num-box">{{ or.qty }}</span>
                             </span>
-                           
+                           <div class="no-store" v-if="item.Qty<=0">ສິນຄ້າໝົດ</div>
                             <img class="card-img-top box-img-pos" v-if="item.ImagePath" :src="url + '/assets/img/' + item.ImagePath" alt="Card image cap">
                             <img class="card-img-top box-img-pos" v-else :src="url + '/assets/img/no_img.jpg'" alt="Card image cap">
                             <div class="card-body p-2 text-center">
@@ -248,6 +248,10 @@ export default {
                     this.customer_tel = '';
                     // ອັບເດດລສຍການ ຂໍ້ມູນ.
                     this.getProducts();
+                    // open bill
+                    if(res.data.bill_id){
+                        window.open(this.url + '/api/bill/print/' + res.data.bill_id, '_blank');
+                    }
                 }
 
             }).catch(error => {
@@ -258,6 +262,33 @@ export default {
 
             let item = this.ProductList.find(i => i.id === id);
             let Old_item = this.ListOrder.find(i => i.id === id);
+
+
+            // check store 
+            if(item.Qty<=0){
+                this.$swal({
+                    position: "center",
+                    icon: "error",
+                    title: "ເກີດຂໍ້ຜິດຜາດ!",
+                    text: "ສິນຄ້າບໍ່ພຽງພໍ",
+                    showConfirmButton: false,
+                    timer: 5500
+                });
+                return;
+            }
+
+            // check num qty
+            if(Old_item && Old_item.qty >= item.Qty){
+                this.$swal({
+                    position: "center",
+                    icon: "error",
+                    title: "ເກີດຂໍ້ຜິດຜາດ!",
+                    text: "ຈໍານວນສິນຄ້າເກີນຈຳນວນໃນສາງ",
+                    showConfirmButton: false,
+                    timer: 5500
+                });
+                return;
+            }
 
             // check old item
             if(Old_item){
@@ -319,6 +350,15 @@ export default {
 }
 </script>
 <style scoped>
+.no-store{
+        position: absolute;
+    background-color: #f729298a;
+    width: 100%;
+    top: 50px;
+    text-align: center;
+    color: white;
+    padding: 4px;
+}
     .num-box{
             position: absolute;
     background-color: red;
