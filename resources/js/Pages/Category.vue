@@ -110,9 +110,13 @@ export default {
                     this.CategoryName = response.data.CategoryName;
                     $('#modal_category').modal('show');
            
-            }).catch(error=>{
-                console.log(error);
-            })
+            }).catch((err) => {
+              console.log(err);
+              if( err.response && err.response.status === 401) {
+                this.authStore.Logout();
+                this.$router.push({ name: 'Login' });
+              }
+            });
         },
         SaveCategory(){
 
@@ -150,8 +154,12 @@ export default {
                         });
                     }
 
-                }).catch(error=>{
-                    console.log(error);
+                }).catch((err) => {
+                    console.log(err);
+                    if( err.response && err.response.status === 401) {
+                        this.authStore.Logout();
+                        this.$router.push({ name: 'Login' });
+                    }
                 })
 
             } else {
@@ -192,9 +200,13 @@ export default {
                         });
                     }
 
-                }).catch(error=>{
-                    console.log(error);
-                })
+                }).catch((err) => {
+                console.log(err);
+                if( err.response && err.response.status === 401) {
+                  this.authStore.Logout();
+                  this.$router.push({ name: 'Login' });
+                }
+              });
 
             }
         },
@@ -244,9 +256,13 @@ export default {
               });
                 }
 
-            }).catch(error=>{
-                console.log(error);
-            })
+            }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
+      });
 
 
         }
@@ -265,9 +281,13 @@ export default {
             }).then(response=>{
                 console.log(response.data);
                 this.CategoryList = response.data;
-            }).catch(error=>{
-                console.log(error);
-            })
+            }).catch((err) => {
+                console.log(err);
+                if( err.response && err.response.status === 401) {
+                    this.authStore.Logout();
+                    this.$router.push({ name: 'Login' });
+                }
+            });
         }
     },
     created(){

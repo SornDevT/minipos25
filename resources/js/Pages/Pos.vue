@@ -254,8 +254,12 @@ export default {
                     }
                 }
 
-            }).catch(error => {
-                console.log(error);
+            }).catch((err) => {
+                console.log(err);
+                if( err.response && err.response.status === 401) {
+                this.authStore.Logout();
+                this.$router.push({ name: 'Login' });
+                }
             });
         },
         AddOrder(id){
@@ -331,6 +335,12 @@ export default {
                 }
             }).then((res) => {
                 this.CategoryList = res.data;
+            }).catch((err) => {
+                console.log(err);
+                if( err.response && err.response.status === 401) {
+                this.authStore.Logout();
+                this.$router.push({ name: 'Login' });
+                }
             });
             },
     getProducts(page=1) {
@@ -340,6 +350,12 @@ export default {
         }
       }).then((res) => {
         this.ProductList = res.data;
+      }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
       });
     },
     }, 

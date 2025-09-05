@@ -141,7 +141,7 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
-                              <img src="../../assets/img/avatars/1.png" alt="" class="h-auto rounded-circle">
+                              <img :src=" url + '/assets/img/avatars/1.png'" alt="" class="h-auto rounded-circle">
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -177,7 +177,7 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar">
-                              <img src="../../assets/img/avatars/2.png" alt="" class="h-auto rounded-circle">
+                              <img :src="url + '/assets/img/avatars/2.png'" alt="" class="h-auto rounded-circle">
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -213,7 +213,7 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar">
-                              <img src="../../assets/img/avatars/9.png" alt="" class="h-auto rounded-circle">
+                              <img :src="url + '/assets/img/avatars/9.png'" alt="" class="h-auto rounded-circle">
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -249,7 +249,7 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar">
-                              <img src="../../assets/img/avatars/5.png" alt="" class="h-auto rounded-circle">
+                              <img :src="url + '/assets/img/avatars/5.png'" alt="" class="h-auto rounded-circle">
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -267,7 +267,7 @@
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar">
-                              <img src="../../assets/img/avatars/6.png" alt="" class="h-auto rounded-circle">
+                              <img :src="url + '/assets/img/avatars/6.png'" alt="" class="h-auto rounded-circle">
                             </div>
                           </div>
                           <div class="flex-grow-1">
@@ -313,7 +313,7 @@
               <li class="nav-item navbar-dropdown dropdown-user dropdown">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                   <div class="avatar avatar-online">
-                    <img src="../../assets/img/avatars/1.png" alt="" class="h-auto rounded-circle">
+                    <img :src=" url + '/assets/img/avatars/1.png'" alt="" class="h-auto rounded-circle">
                   </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
@@ -322,7 +322,7 @@
                       <div class="d-flex">
                         <div class="flex-shrink-0 me-3">
                           <div class="avatar avatar-online">
-                            <img src="../../assets/img/avatars/1.png" alt="" class="h-auto rounded-circle">
+                            <img :src="url + '/assets/img/avatars/1.png'" alt="" class="h-auto rounded-circle">
                           </div>
                         </div>
                         <div class="flex-grow-1">
@@ -413,9 +413,7 @@
             <div class="container-xxl">
               <div class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
                 <div class="mb-2 mb-md-0">
-                  ©
-            
-                  , made with ❤️ by <a href="https://themeselection.com" target="_blank" class="footer-link">ThemeSelection</a>
+                 MiniPos25
                 </div>
                 <div class="d-none d-lg-inline-block">
                   <a href="https://themeselection.com/license/" class="footer-link me-4" target="_blank">License</a>
@@ -456,6 +454,7 @@ export default {
   name: 'App',
   data() {
     return {
+      url: window.location.origin,
       isMobileMenuOpen: false,
       menuItems: [
         {
@@ -542,7 +541,7 @@ export default {
     // ຟັງຊັນເພື່ອກວດສອບຂະໜາດໜ້າຈໍ ແລະປິດເມນູມືຖືອັດຕະໂນມັດ
     checkScreenSize() {
       if (window.innerWidth > 1200) { // breakpoint ຂອງ laptop
-        this.isMobileMenuOpen = false;Z
+        this.isMobileMenuOpen = false;
       }
     },
   },

@@ -266,6 +266,12 @@ export default {
         }
       }).then((res) => {
         this.ProductList = res.data;
+      }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
       });
     },
     getCategories() {
@@ -275,6 +281,12 @@ export default {
         }
       }).then((res) => {
         this.CategoryList = res.data;
+      }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
       });
     },
     getCategoryName(id) {
@@ -310,6 +322,12 @@ export default {
           this.ImagePreview = this.url + '/assets/img/no_img.jpg';
         }
         $("#modal_product").modal("show");
+      }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
       });
     },
     SaveProduct() {
@@ -339,7 +357,13 @@ export default {
                 timer: 5500
               });
             }
-          });
+          }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
+      });
       } else {
         axios.post("/api/product/update/" + this.EditID, this.FormProduct, { headers: { "Content-Type": "multipart/form-data", Authorization: "Bearer " + this.authStore.getToken } })
           .then((res) => {
@@ -368,7 +392,13 @@ export default {
                 timer: 5500
               });
             }
-          });
+          }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
+        }
+      });
       }
     },
     DelProduct(id) {
@@ -413,6 +443,12 @@ export default {
           });
 
 
+        }
+      }).catch((err) => {
+        console.log(err);
+        if( err.response && err.response.status === 401) {
+          this.authStore.Logout();
+          this.$router.push({ name: 'Login' });
         }
       });
 

@@ -98,6 +98,10 @@ export default {
                 // console.log(this.TransectionData);
             }).catch((err) => {
                 console.log(err);
+                if( err.response && err.response.status === 401) {
+                this.authStore.Logout();
+                this.$router.push({ name: 'Login' });
+                }
             });
         }
     },
